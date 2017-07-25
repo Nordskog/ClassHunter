@@ -483,6 +483,8 @@ public class ProfileServer implements Runnable
 				"\t\t{\n" +
 				"\t\t\twidth:100%;\n" +
 				"\t\t\theight:75%;\n" +
+				"\t\t\tcolor: #FFFFFF;" +
+				"\t\t\tbackground:#202020;" +
 				"\t\t}\n" +
 				"\t\t.pathInputBox\n" +
 				"\t\t{\n" +
@@ -508,7 +510,6 @@ public class ProfileServer implements Runnable
 				"\t\t.listBoxWrapper\n" +
 				"\t\t{\n" +
 				"\t\t\tdisplay: flex;\n" +
-				"\t\t\theight:100%;\n" +
 				"\t\t\t\n" +
 				"\t\t}\n" +
 				"\t\t\n" +
@@ -1029,10 +1030,10 @@ public class ProfileServer implements Runnable
 								"\t\t\t\t\t\t\t\t\t<br>\n" +
 								"\t\t\t\t\t\t\t\t\t\n" +
 								"\t\t\t\t\t\t\t\t\tUnresolvable classes are either unknown to you, or on an obfuscated path:<br>\n" +
-								"\t\t\t\t\t\t\t\t\t<codeBox>com.nordskog.youdontknowme</codeBox>, <codeBox>com.mayulive.somepackage.a.b.c</codeBox><br>\n" +
+								"\t\t\t\t\t\t\t\t\t<codeBox>com.mayulive.somepackage.a.b.c</codeBox><br>\n" +
 								"\t\t\t\t\t\t\t\t\tPlease select the last known (unobfuscated) portion of the path.<br>\n" +
 								"\t\t\t\t\t\t\t\t\t<br>\n" +
-								"\t\t\t\t\t\t\t\t\tFunctionally they are the same, but resolved classes are easier on the eyes.\n" +
+								"\t\t\t\t\t\t\t\t\tFunctionally they are the same, but resolved classes are easier on the eyes." +
 								"\t\t\t\t\t\t\t\t\n" +
 								"\t\t\t\t\t\t\t\t</div>\n" +
 								"\t\t\t\t\t\t\t</descriptionBox> \n" +
