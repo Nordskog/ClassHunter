@@ -100,7 +100,7 @@ The heavy lifting is performed by methods in `ProfileSearch`, but `ProfileHelper
 ```java
 ClassProfile exampleProfile = new ClassProfile(); //Blank profile for this example. 
                                                   //Use web interface to generate profiles.
-Class classLoadedFromProfile = ProfileHelpers.loadProfiledClass(  exampleProfile), param);
+Class classLoadedFromProfile = ProfileHelpers.loadProfiledClass(  exampleProfile, param);
 ```
 
 ## Profile Web Interface
