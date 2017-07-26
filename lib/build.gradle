@@ -51,7 +51,7 @@ task androidSourcesJar(type: Jar) {
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId 'com.mayulive.xposed'
+            groupId 'com.mayulive.xposed.classhunter'
             artifactId 'classhunter'
             version = android.defaultConfig.versionName
 
