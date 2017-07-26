@@ -20,12 +20,6 @@ Search results can be stored to speed up the process on subsequent launches.
 A `Profile` is at the lowest level comprised of `ClassItem` objects. These are a simplified representation of a class.
 The `Profile` interface to allows for comparing and similarity checking.
 
-```java
-new ClassItem( int.class )
-new ClassItem( ENUM )
-new ClassItem("partial.class.path" , ENUM  )
-```
-
 A `ClassItem` may be defined with a Class object, a partial canonical class name, and/or with modifiers.
 
 Matches int.class
@@ -43,7 +37,7 @@ Matches any class whose name begins with `"partial.class.path"`, and is also an 
 new ClassItem("partial.class.path" , ENUM  )
 ```
 
-This library also defines a few additional libraries that can be used alongside the standard java ones
+This library also defines a few additional modifiers that can be used alongside the standard java ones
 
 ```java
 THIS      // Class must match the parent class in methods, constructors, and fields
@@ -106,7 +100,7 @@ The heavy lifting is performed by methods in `ProfileSearch`, but `ProfileHelper
 ```java
 ClassProfile exampleProfile = new ClassProfile(); //Blank profile for this example. 
                                                   //Use web interface to generate profiles.
-Class classLoadedFromProfile = ProfileHelpers.loadProfiledClass(  exampleProfile), param);
+Class classLoadedFromProfile = ProfileHelpers.loadProfiledClass(  exampleProfile, param);
 ```
 
 ## Profile Web Interface
@@ -136,8 +130,8 @@ Comparing a profiles against classes isn't super expensive, but it does slow thi
 When the cache is loaded we compare the similarity score, and if they still match we use the cached resut.
 
 ```java
-//Set the save/load location of the cache and load it if it exists.
-ProfileCache.setSaveLocation(lpparam.appInfo.dataDir+"/files/EXI_CLASS_CACHE_"+ ExiXposed.HOOK_PACKAGE_NAME);
+//Set the save/load location of the cache and load it if it exists. 
+ProfileCache.setSaveLocation(lpparam.appInfo.dataDir+"/files/CLASSHUNTER_CACHE");
 ProfileCache.loadCache();
 
 //Load clasess from profiles
