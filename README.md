@@ -12,10 +12,18 @@ A simple web-interface is provided to automatically generate profiles for classe
 
 Search results can be stored to speed up the process on subsequent launches.
 
+## Using Class Hunter in your application
+
+Add this to your app's build.gradle
+
+```java
+dependencies
+{            
+          compile 'com.mayulive.xposed.classhunter:classhunter:1.0.0'      
+}
+```
 
 ## Basic usage
-
-//TODO repo link
 
 A `Profile` is at the lowest level comprised of `ClassItem` objects. These are a simplified representation of a class.
 The `Profile` interface to allows for comparing and similarity checking.
