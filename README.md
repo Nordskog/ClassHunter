@@ -23,6 +23,8 @@ dependencies
 }
 ```
 
+Available in the `jcenter` repository
+
 ## Basic usage
 
 A `Profile` is at the lowest level comprised of `ClassItem` objects. These are a simplified representation of a class.
