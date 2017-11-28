@@ -1,5 +1,6 @@
 package com.mayulive.xposed.classhunter;
 
+import android.annotation.SuppressLint;
 import android.util.Log;
 
 import com.mayulive.xposed.classhunter.packagetree.PackageTree;
@@ -67,21 +68,25 @@ public class ProfileParser
 	}
 
 	//Use for classes
+	@SuppressLint("WrongConstant")
 	private static String getModifiers( Class clazz, int additionalFlags)
 	{
 		return Modifiers.getModifierString(  clazz.getModifiers()|additionalFlags, Modifiers.ModifierType.DEFAULT);
 	}
 
+	@SuppressLint("WrongConstant")
 	private static String getModifiers(Field field)
 	{
 		return Modifiers.getModifierString(field.getModifiers() | Modifiers.EXACT, Modifiers.ModifierType.DEFAULT);
 	}
 
+	@SuppressLint("WrongConstant")
 	private static String getModifiers(Method method)
 	{
 		return Modifiers.getModifierString(method.getModifiers() | Modifiers.EXACT, Modifiers.ModifierType.METHOD);
 	}
 
+	@SuppressLint("WrongConstant")
 	private static String getModifiers(Constructor constructor)
 	{
 		return Modifiers.getModifierString(constructor.getModifiers() | Modifiers.EXACT, Modifiers.ModifierType.METHOD);
