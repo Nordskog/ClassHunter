@@ -3,7 +3,7 @@ apply plugin: 'com.android.library'
 android
 {
     compileSdkVersion 25
-    buildToolsVersion "25.0.1"
+    buildToolsVersion "26.0.2"
 
     defaultConfig
     {
@@ -19,12 +19,16 @@ android
 
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies
-{
-    compile 'com.android.support:support-annotations:25.1.0'
-}
+        {
+            compile 'com.android.support:support-annotations:27.0.2'
+        }
 
 //Publish snipet courtesy of Robyer
 // https://gist.github.com/Robyer/a6578e60127418b380ca133a1291f017
