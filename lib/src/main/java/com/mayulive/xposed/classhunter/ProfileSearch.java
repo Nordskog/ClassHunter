@@ -30,12 +30,24 @@ public class ProfileSearch
 
 		searchResults = param.getAllAtDepth(targetProfile.getKnownPath(),targetProfile.getMinDepth(),targetProfile.getMaxDepth());
 
-		if (ClassHunter.DEBUG_CLASS_SEARCH)
+		if (ClassHunter.DEBUG_CLASS_SEARCH || ClassHunter.DEBUG_CLASS_SEARCH_TOP_RESULTS)
 		{
+			Log.i(TAG, "Target fullname: "+targetProfile.getFullPath());
 			Log.i(TAG, "Candidate count: "+searchResults.size());
 		}
 
 		List< ProfileHelpers.ProfileSimilarity < Class > > similarities = ProfileHelpers.getSimilarityRanking(targetProfile, searchResults.toArray(new Class[searchResults.size()]), null, targetCount);
+
+		if (ClassHunter.DEBUG_CLASS_SEARCH_TOP_RESULTS || ClassHunter.DEBUG_CLASS_SEARCH)
+		{
+			Log.i(TAG, "Top 5 results");
+			for (int i = 0; i < 5 && i < similarities.size(); i++)
+			{
+				ProfileHelpers.ProfileSimilarity sim = similarities.get(i);
+				Log.i(TAG, "Class: "+sim.clazz.toString()+"	Similarity: "+sim.similarity);
+			}
+
+		}
 
 		ArrayList<Class> returnResults = new ArrayList<>();
 		for (int i = 0; i < targetCount; i++)

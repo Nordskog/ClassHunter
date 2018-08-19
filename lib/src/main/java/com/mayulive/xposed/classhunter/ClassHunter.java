@@ -24,6 +24,8 @@ public class ClassHunter
 	public static boolean DEBUG_SIMILARITY_RANKING = false;
 	public static boolean DEBUG_SERVER = false;
 
+	public static boolean DEBUG_CLASS_SEARCH_TOP_RESULTS = false;
+
 	public static int HOOK_SIGNATURE = 1;
 	public static int MODULE_SIGNATURE = 1;
 
