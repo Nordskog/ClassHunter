@@ -321,6 +321,11 @@ public class ClassProfile implements Profile<Class>
 
 	public float getSimilarity(Class rightClass, Class rightParentClass)
 	{
+		return getSimilarity(rightClass, rightParentClass, 1f);
+	}
+
+	public float getSimilarity(Class rightClass, Class rightParentClass, float minSimilarity)
+	{
 		float similarity = 0;
 
 		for (int i = 0; i < comparisons.length; i++)
@@ -330,6 +335,19 @@ public class ClassProfile implements Profile<Class>
 			if (ClassHunter.DEBUG_CLASS_SIMILARITY)
 			{
 				Log.i(TAG, "Similarity "+ comparisons[i].toString()+": "+sim);
+			}
+
+			{
+				int remaining = comparisons.length - (i + 1);
+
+				float scoreSoFar = similarity / ((float)i + 1f);
+				float maxScoreRemaining =  ( 1f / (float)remaining);
+				float maxPossibleScore = scoreSoFar + maxScoreRemaining;
+
+				if ( maxPossibleScore < minSimilarity )
+				{
+					return mInverted ? 1f : 0f;
+				}
 			}
 		}
 

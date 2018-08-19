@@ -128,12 +128,18 @@ public class ProfileHelpers
 			return new ArrayList<>();
 		}
 
+		float minSimilarity = 0f;
 
 		ArrayList<ProfileSimilarity<Profile<T>>> similarities = new ArrayList<>();
 		for ( int i = 0; i < profiles.length; i++)
 		{
 			Profile profile = profiles[i];
-			ProfileSimilarity newItem = new ProfileSimilarity(profile, profile.getSimilarity(candidate, rightParentClass));
+			ProfileSimilarity newItem = new ProfileSimilarity(profile, profile.getSimilarity(candidate, rightParentClass, minSimilarity));
+
+			if ( minSimilarity < newItem.similarity )
+			{
+				minSimilarity = newItem.similarity;
+			}
 
 			//Items with a similarity of <=0 should be excluded. Scores will never be 0 or below unless the REQUIRED modifier is used.
 			if (newItem.similarity > 0)
@@ -184,7 +190,7 @@ public class ProfileHelpers
 	 * @param rightParentClass  The parent class of the objects, if they belong to a class.
 	 * @return	A list of ProfileSimilarity objects in descending order of similarity
 	 */
-	public static <T> List<ProfileSimilarity<T>> getSimilarityRanking(Profile profile, T[] candidates, Class rightParentClass)
+	public static <T> List<ProfileSimilarity<T>> getSimilarityRanking(Profile profile, T[] candidates, Class rightParentClass, int topCount)
 	{
 		if (candidates.length < 1)
 		{
@@ -195,12 +201,21 @@ public class ProfileHelpers
 			return new ArrayList<>();
 		}
 
+		float[] topSimilarities = new float[topCount + 1];	//One extra space for insertions
+		Arrays.fill(topSimilarities, 0);
+
 
 		ArrayList<ProfileSimilarity<T>> similarities = new ArrayList<>();
 		for ( int i = 0; i < candidates.length; i++)
 		{
 			T canClass = candidates[i];
-			ProfileSimilarity newItem = new ProfileSimilarity(canClass, profile.getSimilarity(canClass, rightParentClass));
+			ProfileSimilarity newItem = new ProfileSimilarity(canClass, profile.getSimilarity(canClass, rightParentClass, topSimilarities[1]));
+
+			if ( topSimilarities[1] < newItem.similarity )
+			{
+				topSimilarities[0] = newItem.similarity;
+				Arrays.sort( topSimilarities );	//Sort ascending. index 0 is now below limit, compare to index 1.
+			}
 
 			//Items with a similarity of <=0 should be excluded. Scores will never be 0 or below unless the REQUIRED modifier is used.
 			if (newItem.similarity > 0)
@@ -258,7 +273,7 @@ public class ProfileHelpers
 		if (candidates.length < 1)
 			return results;
 
-		List<ProfileSimilarity<T>> sims = getSimilarityRanking(profile,candidates, rightParentClass);
+		List<ProfileSimilarity<T>> sims = getSimilarityRanking(profile,candidates, rightParentClass, 1);
 
 		float lastScore = 0;
 		for (int i = 0; i < sims.size(); i++)
@@ -292,7 +307,7 @@ public class ProfileHelpers
 		if (candidates.length < 1)
 			return results;
 
-		List<ProfileSimilarity<T>> sims = getSimilarityRanking(profile,candidates, rightParentClass);
+		List<ProfileSimilarity<T>> sims = getSimilarityRanking(profile,candidates, rightParentClass, count);
 
 		for (int i = 0; i < count && i < sims.size(); i++)
 		{
@@ -314,11 +329,14 @@ public class ProfileHelpers
 		if (candidates.length < 1)
 			return null;
 
-		List<ProfileSimilarity<T>> sims = getSimilarityRanking(profile,candidates, rightParentClass);
+		List<ProfileSimilarity<T>> sims = getSimilarityRanking(profile,candidates, rightParentClass, 1);
 		if (!sims.isEmpty())
 			return sims.get(0).clazz;
 		return null;
 	}
+
+
+
 
 	/**
 	 *Find the most similar profile.
@@ -617,7 +635,7 @@ public class ProfileHelpers
 					}
 
 
-					float similarity = currentPatternItem.getSimilarity(currentCandidateItem, parentClass);
+					float similarity = currentPatternItem.getSimilarity(currentCandidateItem, parentClass, 1);
 
 					currentPatternPair.connectedItems[j] = new SimilaryPairItem.PairConnection(candidatePair, similarity);
 					candidatePair.connectedItems[i] = new SimilaryPairItem.PairConnection(currentPatternPair, similarity);

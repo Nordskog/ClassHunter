@@ -115,7 +115,7 @@ public class ConstructorProfile implements Profile<Constructor>
 	}
 
 		@Override
-	public float getSimilarity(Constructor right, Class rightParentClass)
+	public float getSimilarity(Constructor right, Class rightParentClass, float minSimilarity)
 	{
 		float[] similarities = new float[2];
 

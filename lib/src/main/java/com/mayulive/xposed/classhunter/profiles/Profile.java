@@ -19,9 +19,10 @@ public interface Profile<T>
 	/**
 	 * @param right The class to compare to
 	 * @param  rightParentClass The parent class if a field, method, or constructor parameter.
+	 * @param  minSimilarity Skip remaining checks if max possible below this. Only used by ClassProfile
 	 * @return	How similar the profile is to <code>T right</code>
 	 */
-	public float getSimilarity(T right, @Nullable Class rightParentClass);
+	public float getSimilarity(T right, @Nullable Class rightParentClass, float minSimilarity);
 
 
 	/**

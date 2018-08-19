@@ -110,7 +110,7 @@ public class MethodProfile implements Profile<Method>
 	}
 
 	@Override
-	public float getSimilarity(Method right, Class rightParentClass)
+	public float getSimilarity(Method right, Class rightParentClass, float minSimilarity)
 	{
 
 		float[] similarities = new float[3];

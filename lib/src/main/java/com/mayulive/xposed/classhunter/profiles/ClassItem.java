@@ -167,7 +167,7 @@ public class ClassItem implements Profile<Class>
 	}
 
 	@Override
-	public float getSimilarity(Class right, Class rightParentClass)
+	public float getSimilarity(Class right, Class rightParentClass, float minSimilarity)
 	{
 		if (mInvert)
 			return compareTo(right,rightParentClass) ? 0 : 1;

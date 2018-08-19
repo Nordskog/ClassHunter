@@ -35,7 +35,7 @@ public class ProfileSearch
 			Log.i(TAG, "Candidate count: "+searchResults.size());
 		}
 
-		List< ProfileHelpers.ProfileSimilarity < Class > > similarities = ProfileHelpers.getSimilarityRanking(targetProfile, searchResults.toArray(new Class[searchResults.size()]), null);
+		List< ProfileHelpers.ProfileSimilarity < Class > > similarities = ProfileHelpers.getSimilarityRanking(targetProfile, searchResults.toArray(new Class[searchResults.size()]), null, targetCount);
 
 		ArrayList<Class> returnResults = new ArrayList<>();
 		for (int i = 0; i < targetCount; i++)

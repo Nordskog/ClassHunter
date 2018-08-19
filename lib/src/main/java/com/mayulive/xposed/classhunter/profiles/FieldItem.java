@@ -68,7 +68,7 @@ public class FieldItem implements Profile<Field>
 	}
 
 	@Override
-	public float getSimilarity(Field right, Class rightParentClass)
+	public float getSimilarity(Field right, Class rightParentClass, float minSimilarity)
 	{
 		//TODO implement more proper similarity?
 		if (mInverted)
