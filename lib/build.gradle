@@ -3,7 +3,6 @@ apply plugin: 'com.android.library'
 android
 {
     compileSdkVersion 26
-    buildToolsVersion "26.0.2"
 
     defaultConfig
     {
@@ -27,7 +26,7 @@ android
 
 dependencies
         {
-            compile 'com.android.support:support-annotations:27.0.2'
+            implementation 'com.android.support:support-annotations:27.0.2'
         }
 
 //Publish snipet courtesy of Robyer
@@ -52,42 +51,44 @@ task androidSourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
 }
 
-publishing {
-    publications {
-        maven(MavenPublication) {
-            groupId 'com.mayulive.xposed.classhunter'
-            artifactId 'classhunter'
-            version = android.defaultConfig.versionName
+project.afterEvaluate {
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                groupId 'com.mayulive.xposed.classhunter'
+                artifactId 'classhunter'
+                version = android.defaultConfig.versionName
 
-            artifact bundleRelease
-            artifact androidJavadocsJar
-            artifact androidSourcesJar
+                artifact bundleReleaseAar
+                artifact androidJavadocsJar
+                artifact androidSourcesJar
 
-            pom.withXml {
-                def dependenciesNode = asNode().appendNode('dependencies')
+                pom.withXml {
+                    def dependenciesNode = asNode().appendNode('dependencies')
 
-                // List all compile dependencies and write to POM
-                configurations.compile.getAllDependencies().each { Dependency dep ->
-                    if (dep.group == null || dep.version == null || dep.name == null || dep.name == "unspecified")
-                        return // ignore invalid dependencies
+                    // List all compile dependencies and write to POM
+                    configurations.compile.getAllDependencies().each { Dependency dep ->
+                        if (dep.group == null || dep.version == null || dep.name == null || dep.name == "unspecified")
+                            return // ignore invalid dependencies
 
-                    def dependencyNode = dependenciesNode.appendNode('dependency')
-                    dependencyNode.appendNode('groupId', dep.group)
-                    dependencyNode.appendNode('artifactId', dep.name)
-                    dependencyNode.appendNode('version', dep.version)
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', dep.group)
+                        dependencyNode.appendNode('artifactId', dep.name)
+                        dependencyNode.appendNode('version', dep.version)
 
-                    if (!dep.transitive) {
-                        // If this dependency is transitive, we should force exclude all its dependencies them from the POM
-                        def exclusionNode = dependencyNode.appendNode('exclusions').appendNode('exclusion')
-                        exclusionNode.appendNode('groupId', '*')
-                        exclusionNode.appendNode('artifactId', '*')
-                    } else if (!dep.properties.excludeRules.empty) {
-                        // Otherwise add specified exclude rules
-                        def exclusionsNode = dependencyNode.appendNode('exclusions')
-                        dep.properties.excludeRules.each { ExcludeRule rule ->
-                            def exclusionNode = exclusionsNode.appendNode('exclusion')
-                            exclusionNode.appendNode('groupId', rule.group ?: '*')
-                            exclusionNode.appendNode('artifactId', rule.module ?: '*')
+                        if (!dep.transitive) {
+                            // If this dependency is transitive, we should force exclude all its dependencies them from the POM
+                            def exclusionNode = dependencyNode.appendNode('exclusions').appendNode('exclusion')
+                            exclusionNode.appendNode('groupId', '*')
+                            exclusionNode.appendNode('artifactId', '*')
+                        } else if (!dep.properties.excludeRules.empty) {
+                            // Otherwise add specified exclude rules
+                            def exclusionsNode = dependencyNode.appendNode('exclusions')
+                            dep.properties.excludeRules.each { ExcludeRule rule ->
+                                def exclusionNode = exclusionsNode.appendNode('exclusion')
+                                exclusionNode.appendNode('groupId', rule.group ?: '*')
+                                exclusionNode.appendNode('artifactId', rule.module ?: '*')
+                            }
                         }
                     }
                 }
@@ -95,3 +96,4 @@ publishing {
         }
     }
 }
+
