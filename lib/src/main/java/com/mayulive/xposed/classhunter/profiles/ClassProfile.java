@@ -20,38 +20,49 @@ public class ClassProfile implements Profile<Class>
 	 */
 	public enum CLASS_DATA
 	{
-		MODIFIERS,
+		MODIFIERS				(0.25f),
+		TYPE_PARAM_COUNT		(1f),
+		INTERFACES				(1f),
+		SUPER_CLASS				(1f),
+		NESTED_CLASS			(0.5f),
+		ENUM_VALUES				(1f),
+		DECLARED_FIELDS			(1f),
+		DECLARED_METHODS		(1f),
+		DECLARED_CONSTRUCTORS	(0.5f),
+		PUBLIC_FIELDS			(1f),
+		PUBLIC_METHODS			(1f);
 
-		TYPE_PARAM_COUNT,
+		float weight = 1f;
 
-		INTERFACES,
+		static float totalWeight = 0;
 
-		SUPER_CLASS,
+		static
+		{
+			for (CLASS_DATA value : CLASS_DATA.values())
+			{
+				totalWeight += value.weight;
+			}
+		}
 
-		NESTED_CLASS,
-
-		ENUM_VALUES,
-		DECLARED_FIELDS,
-		DECLARED_METHODS,
-		DECLARED_CONSTRUCTORS,
-		
-		PUBLIC_FIELDS,
-		PUBLIC_METHODS
+		CLASS_DATA( float weight )
+		{
+			this.weight = weight;
+		}
 	}
 
 	private static final CLASS_DATA[] comparisons = new CLASS_DATA[]
 	{
+			SUPER_CLASS,
+			NESTED_CLASS,
+			TYPE_PARAM_COUNT,
+			INTERFACES,
 			MODIFIERS,
 			ENUM_VALUES,
 			DECLARED_CONSTRUCTORS,
 			DECLARED_FIELDS,
 			DECLARED_METHODS,
 			PUBLIC_FIELDS,
-			PUBLIC_METHODS,
-			TYPE_PARAM_COUNT,
-			INTERFACES,
-			SUPER_CLASS,
-			NESTED_CLASS
+			PUBLIC_METHODS
 	};
 
 	private static final String TAG = ClassHunter.getLogTag( ClassProfile.class );
@@ -321,37 +332,36 @@ public class ClassProfile implements Profile<Class>
 
 	public float getSimilarity(Class rightClass, Class rightParentClass)
 	{
-		return getSimilarity(rightClass, rightParentClass, 1f);
+		return getSimilarity(rightClass, rightParentClass, 0f);
 	}
 
 	public float getSimilarity(Class rightClass, Class rightParentClass, float minSimilarity)
 	{
-		float similarity = 0;
+		float similarity = 0;					// Total score
+		float remainingWeights = CLASS_DATA.totalWeight;;	// Each type is weighted. Keep track so we can compute partial.
 
 		for (int i = 0; i < comparisons.length; i++)
 		{
+			remainingWeights -= comparisons[i].weight;
+
 			float sim = getSimilaritySingle(comparisons[i],rightClass);
-			similarity += sim;
+			similarity += sim * comparisons[i].weight;
 			if (ClassHunter.DEBUG_CLASS_SIMILARITY)
 			{
-				Log.i(TAG, "Similarity "+ comparisons[i].toString()+": "+sim);
+				Log.i(TAG, "Similarity "+ comparisons[i].toString()+": "+sim+", weighted: "+sim * comparisons[i].weight+", cummulative: "+similarity);
 			}
 
+			// Assume 1f for remaining weights, add to running total.
+			float maxPossibleScore = ( remainingWeights + similarity ) / CLASS_DATA.totalWeight;
+
+			if ( maxPossibleScore < minSimilarity )
 			{
-				int remaining = comparisons.length - (i + 1);
-
-				float scoreSoFar = similarity / ((float)i + 1f);
-				float maxScoreRemaining =  ( 1f / (float)remaining);
-				float maxPossibleScore = scoreSoFar + maxScoreRemaining;
-
-				if ( maxPossibleScore < minSimilarity )
-				{
-					return mInverted ? 1f : 0f;
-				}
+				return mInverted ? 1f : 0f;
 			}
+
 		}
 
-		similarity = similarity / (float) comparisons.length;
+		similarity /= totalWeight;
 
 		if (mInverted)
 			return 1f - similarity;
@@ -396,7 +406,7 @@ public class ClassProfile implements Profile<Class>
 							otherCount = temp;
 						}
 
-						return selfCount / otherCount;
+						return (float)selfCount / (float)otherCount;
 					}
 				}
 
@@ -407,7 +417,7 @@ public class ClassProfile implements Profile<Class>
 
 				case SUPER_CLASS:
 				{
-					return mSuperClass == null ? 1 : (mSuperClass.compareTo(rightClass.getSuperclass(), null) ? 1 : 0);
+					return mSuperClass == null ? 1 : mSuperClass.getSimilarity(rightClass.getSuperclass(), rightClass.getSuperclass(), 0f );
 				}
 
 				case NESTED_CLASS:
@@ -416,7 +426,7 @@ public class ClassProfile implements Profile<Class>
 				}
 
 				case MODIFIERS:
-					return (mModifiers == -1 ? true : Modifiers.compare(mModifiers,rightClass.getModifiers()) ) ? 1 : 0;
+					return (mModifiers == -1 ? 1 : Modifiers.getSimilarity( rightClass.getModifiers(), mModifiers ) );
 
 				case ENUM_VALUES:
 					return getEnumSimilarity(rightClass);

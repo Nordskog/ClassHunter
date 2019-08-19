@@ -19,6 +19,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Helper methods for loading and searching for classes and methods etc
@@ -451,6 +452,7 @@ public class ProfileHelpers
 	private static class SimilaryPairItem
 	{
 		boolean consumed = false;
+		int originalIndex = 0;
 		PairConnection topConnection = null;
 		PairConnection[] connectedItems;
 
@@ -481,9 +483,10 @@ public class ProfileHelpers
 			Arrays.sort(connectedItems, (PairConnection a, PairConnection b) -> a.compareTo(b) );
 		}
 
-		SimilaryPairItem(int connectedItemCount)
+		SimilaryPairItem(int connectedItemCount, int originalIndex )
 		{
 			connectedItems = new PairConnection[connectedItemCount];
+			this.originalIndex = originalIndex;
 		}
 	}
 
@@ -497,6 +500,9 @@ public class ProfileHelpers
 	 */
 	public static <T> float getProfileSimilarity(Profile<T>[] patternItems, T[] candidates, Class parentClass, boolean ordered)
 	{
+
+
+
 		//Null input means match anything
 		if (patternItems == null)
 			return 1;
@@ -509,103 +515,6 @@ public class ProfileHelpers
 				return 0;
 		}
 
-		//Only costructor and method parameters should be ordered, as the similarity value returned
-		//doesn't really give you much to play with, and the order is much more important.
-		if (ordered)
-		{
-			//Each pattern item is given a score based on matches in the search items.
-			// 1   - Item found, and was in order expected (other items inbetween don't matter).
-			// 0.75 - Item found, but in wrong order.
-			// 0 - item not found
-
-			//Any extra items should also be considered
-			float[] patternScores = new float[patternItems.length];
-			boolean[] searchScores = new boolean[candidates.length];
-			Arrays.fill(patternScores, 0);
-			Arrays.fill(searchScores, false);
-
-			//First search for items in the right order
-			if (ordered)
-			{
-				int lastSearchStart = 0;
-				for (int i = 0; i < patternItems.length; i++)
-				{
-					for (int j = lastSearchStart; j < candidates.length; j++)
-					{
-						if (patternItems[i].compareTo(candidates[j],parentClass))
-						{
-							patternScores[i] = 1;
-							searchScores[j] = true;
-							lastSearchStart = j+1;
-							break;
-						}
-					}
-				}
-			}
-			//Then just look for matches for the rest
-			for (int i = 0; i < patternItems.length; i++)
-			{
-				if (patternScores[i] < 1)
-				{
-					for (int j = 0; j < candidates.length; j++)
-					{
-						if (!searchScores[j])
-						{
-							if (patternItems[i].compareTo(candidates[j],parentClass))
-							{
-								if (ordered)
-									patternScores[i] = 0.75f;
-								else
-									patternScores[i] = 1;
-								searchScores[j] = true;
-								break;
-							}
-						}
-					}
-				}
-			}
-
-			float similarity = 0;
-
-			for (int i = 0; i < patternScores.length; i++)
-			{
-				similarity += patternScores[i];
-
-				//Not found, check for required flag
-				if (patternScores[i] <= 0)
-				{
-					int mods = patternItems[i].getModifiers();
-					if (mods != -1 && Modifiers.isRequired(mods ))
-					{
-						//Required item was not found. Return -1 as score
-						return Integer.MIN_VALUE;
-					}
-
-				}
-
-			}
-
-			if (patternScores.length <= 0)
-				similarity = 1;
-			else
-				similarity /= (float)patternScores.length;
-
-
-			//For each extra argument in the list we are comparing against,
-			//multiply the result by 0.98
-			for (int i = 0; i < searchScores.length; i++)
-			{
-				//How should extra items in right list affect the score...
-				if (!searchScores[i])
-				{
-					similarity *= 0.98f;	//Reasonable?
-				}
-
-			}
-
-			return similarity;
-		}
-		else
 		{
 			//Compare all pairs, probably super expensive
 			int topCount = patternItems.length > candidates.length ? patternItems.length : candidates.length;
@@ -619,7 +528,7 @@ public class ProfileHelpers
 				//Compare to each candidaite, add entry to both self and candidate
 				Profile<T> currentPatternItem = patternItems[i];
 
-				SimilaryPairItem currentPatternPair = new SimilaryPairItem(candidates.length);
+				SimilaryPairItem currentPatternPair = new SimilaryPairItem(candidates.length, i);
 				patternItemPairs[i] = currentPatternPair;
 
 				for (int j = 0; j < candidates.length; j++)
@@ -630,7 +539,7 @@ public class ProfileHelpers
 					SimilaryPairItem candidatePair = candidateItemPairs[j];
 					if (candidatePair == null)
 					{
-						candidatePair = new SimilaryPairItem(patternItems.length);
+						candidatePair = new SimilaryPairItem(patternItems.length, j);
 						candidateItemPairs[j] = candidatePair;
 					}
 
@@ -697,6 +606,33 @@ public class ProfileHelpers
 					}
 				}
 			}
+
+			//////////////////////
+			// Order weight
+			//////////////////////
+
+			if (ordered)
+			{
+				int prevActual = -1;
+				for (SimilaryPairItem item : patternItemPairs)
+				{
+					//If there are more candidates than profiles, they will add a 0 to the average
+					if (item.topConnection != null)
+					{
+						int connectionIndex = item.topConnection.connection.originalIndex;
+
+						// Exepected to be after previous item's match but was before.
+						if ( connectionIndex <= prevActual  )
+							item.topConnection.similarity *= 0.75;
+
+						prevActual = item.topConnection.connection.originalIndex;
+					}
+				}
+			}
+
+			/////////////////////
+			// Final score
+			/////////////////////
 
 			float similarity = 0;
 			for (SimilaryPairItem item : patternItemPairs)

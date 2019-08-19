@@ -48,9 +48,9 @@ public class FieldItem implements Profile<Field>
 		return this;
 	}
 
-	public boolean _compareTo(Field right, Class rightParentClass)
+	public boolean _compareTo(Field right, Class rightParentClass, boolean considerModifier)
 	{
-		if (  !(mModifiers == -1 ? true : Modifiers.compare(mModifiers, right.getModifiers()) ) )
+		if (  considerModifier && !(mModifiers == -1 ? true : Modifiers.compare(mModifiers, right.getModifiers()) ) )
 			return false;
 		else
 		{
@@ -62,18 +62,23 @@ public class FieldItem implements Profile<Field>
 	public boolean compareTo(Field right, Class rightParentClass)
 	{
 		if (mInverted)
-			return !_compareTo(right,rightParentClass);
+			return !_compareTo(right,rightParentClass, false);
 		else
-			return _compareTo(right,rightParentClass);
+			return _compareTo(right,rightParentClass, false);
 	}
 
 	@Override
 	public float getSimilarity(Field right, Class rightParentClass, float minSimilarity)
 	{
-		//TODO implement more proper similarity?
+		float classScore = mClassItem.getSimilarity( right.getType(), rightParentClass, minSimilarity );
+		float modifierScore = Modifiers.getSimilarity( right.getModifiers(), mModifiers );
+
+		if (mModifiers != -1)
+			classScore = (classScore + modifierScore) / 2f;
+
 		if (mInverted)
-			return compareTo(right,rightParentClass) ? 0 : 1;
+			return 1f - classScore;
 		else
-			return compareTo(right,rightParentClass) ? 1 : 0;
+			return classScore;
 	}
 }

@@ -160,6 +160,32 @@ public class Modifiers
 		}
 	}
 
+	public static float getSimilarity( int pattern, int target )
+	{
+		// Only covers standard bits
+		float commonBits = getFlippedByteCount( pattern & target );
+		float allBits = getFlippedByteCount( pattern | target );
+
+		if (commonBits < 0 || allBits < 0)
+			return 0;
+
+		return commonBits / allBits;
+	}
+
+	private static int getFlippedByteCount( int modifier )
+	{
+		int count = 0;
+		int currentBit = 1;
+		for (int i = 0; i < 15; i++)
+		{
+			if ( ( modifier & currentBit ) == currentBit )
+				count++;
+			currentBit <<= 1;
+		}
+
+		return count;
+	}
+
 	public static int[] values = new int[]
 	{
 		PUBLIC,

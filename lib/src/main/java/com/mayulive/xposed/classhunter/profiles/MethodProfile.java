@@ -116,16 +116,16 @@ public class MethodProfile implements Profile<Method>
 		float[] similarities = new float[3];
 
 		similarities[0] = ProfileHelpers.getProfileSimilarity(mParameters, right.getParameterTypes(), rightParentClass, true);
-		similarities[1] = mReturnType.compareTo(right.getReturnType(),rightParentClass) ? 1 : 0;
-		similarities[2] = mModifiers != -1 ?   ( Modifiers.compare(mModifiers, right.getModifiers()) ? 1 : 0 )   :  1;
+		similarities[1] = mReturnType == null ? 1f : mReturnType.getSimilarity( right.getReturnType(),rightParentClass, 0f);
+		if (mModifiers != -1)
+			similarities[2] = Modifiers.getSimilarity(mModifiers, right.getModifiers());
+		else
+			similarities[2] = 1f;
 
 		float similarity = 0;
-		for (float sim : similarities)
-		{
-			similarity += sim;
-		}
-
-		similarity /= 3f;
+		similarity += similarities[0] * 0.4f;
+		similarity += similarities[1] * 0.4f;
+		similarity += similarities[2] * 0.2f;
 
 		if (mInverted)
 			return 1f - similarity;

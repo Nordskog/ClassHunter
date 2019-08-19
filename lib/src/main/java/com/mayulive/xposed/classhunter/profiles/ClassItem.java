@@ -76,7 +76,7 @@ public class ClassItem implements Profile<Class>
 			return mPrefix;
 	}
 
-	private boolean _compareTo( Class rightClass, Class rightParentClass)
+	private boolean _compareTo( Class rightClass, Class rightParentClass, boolean considerModifier)
 	{
 		//Comparison against null should match only if this item is completely empty.
 		if (rightClass == null)
@@ -111,7 +111,7 @@ public class ClassItem implements Profile<Class>
 
 
 		//Otherwise modifiers and this
-		if (mModifiers != -1)
+		if (mModifiers != -1 && considerModifier)
 		{
 			//If the right class is an array, we want to compare
 			//against its contained class instead
@@ -157,22 +157,40 @@ public class ClassItem implements Profile<Class>
 
 		return true;
 	}
+
+
 	
 	public boolean compareTo(Class rightClass, Class rightParentClass)
 	{
 		if (this.mInvert)
-			return !_compareTo(rightClass,rightParentClass);
+			return !_compareTo(rightClass,rightParentClass, true);
 		else
-			return _compareTo(rightClass,rightParentClass);
+			return _compareTo(rightClass,rightParentClass, true);
 	}
 
 	@Override
 	public float getSimilarity(Class right, Class rightParentClass, float minSimilarity)
 	{
+		if (right == null)
+		{
+			if (mClass == null && mPrefix.isEmpty() && mModifiers == -1)
+				return 1f;
+			else
+				return 0f;
+		}
+
+		float classScore = this._compareTo( right, rightParentClass, false ) ? 1 : 0;
+		float modifierScore = Modifiers.getSimilarity( right.getModifiers(), mModifiers );
+
+		if (mModifiers != -1)
+		{
+			classScore = ( classScore * 0.7f ) + (modifierScore * 0.3f);
+		}
+
 		if (mInvert)
-			return compareTo(right,rightParentClass) ? 0 : 1;
+			return 1f - classScore;
 		else
-			return compareTo(right,rightParentClass) ? 1 : 0;
+			return classScore;
 	}
 
 
