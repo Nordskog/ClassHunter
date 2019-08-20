@@ -180,10 +180,21 @@ public class ClassItem implements Profile<Class>
 		}
 
 		float classScore = this._compareTo( right, rightParentClass, false ) ? 1 : 0;
-		float modifierScore = Modifiers.getSimilarity( right.getModifiers(), mModifiers );
 
-		if (mModifiers != -1)
+		if ( mClass == null && mModifiers != -1)
 		{
+			float modifierScore = 1f;
+			if ( Modifiers.isThis( mModifiers ) && rightParentClass != null )
+			{
+				// Ignore other flags if this is present
+				modifierScore = right == rightParentClass ? 1f : 0f;
+			}
+			else
+			{
+				modifierScore = Modifiers.getSimilarity( mModifiers, right.getModifiers() );
+			}
+
+			// Only add to class score if modifiers set
 			classScore = ( classScore * 0.7f ) + (modifierScore * 0.3f);
 		}
 

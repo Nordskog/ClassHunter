@@ -71,7 +71,7 @@ public class FieldItem implements Profile<Field>
 	public float getSimilarity(Field right, Class rightParentClass, float minSimilarity)
 	{
 		float classScore = mClassItem.getSimilarity( right.getType(), rightParentClass, minSimilarity );
-		float modifierScore = Modifiers.getSimilarity( right.getModifiers(), mModifiers );
+		float modifierScore = Modifiers.getSimilarity( mModifiers, right.getModifiers() );
 
 		if (mModifiers != -1)
 			classScore = (classScore + modifierScore) / 2f;

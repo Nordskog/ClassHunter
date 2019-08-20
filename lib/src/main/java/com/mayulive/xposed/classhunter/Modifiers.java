@@ -3,7 +3,7 @@ package com.mayulive.xposed.classhunter;
 
 /**
  * Containers bitfield modifier values and methods for parsing them
- * The standard values mirror that of {@link java.lang.reflect.Modifier}.
+ * The standard values mirror that of { java.lang.reflect.Modifier}.
  * In addition there are some values only used by this library, stored in the latter 2 bytes.
  */
 public class Modifiers
@@ -162,21 +162,38 @@ public class Modifiers
 
 	public static float getSimilarity( int pattern, int target )
 	{
-		// Only covers standard bits
-		float commonBits = getFlippedByteCount( pattern & target );
-		float allBits = getFlippedByteCount( pattern | target );
+		if ( Modifiers.isExact(pattern) )
+		{
+			// Only covers standard bits
+			float commonBits = getFlippedByteCount( pattern & target );
+			float allBits = getFlippedByteCount( pattern | target );
 
-		if (commonBits < 0 || allBits < 0)
-			return 0;
+			if (commonBits < 0 || allBits < 0)
+				return 0;
 
-		return commonBits / allBits;
+			return commonBits / allBits;
+		}
+		else
+		{
+			// Only check if target contains same bits
+			float patternFlipped = getFlippedByteCount(pattern);
+			float commonFlipped = getFlippedByteCount( pattern & target);
+
+			if ( patternFlipped == 0 )
+				return 1f;
+			if (commonFlipped == 0)
+				return 0f;
+
+			return commonFlipped / patternFlipped;
+		}
+
 	}
 
 	private static int getFlippedByteCount( int modifier )
 	{
 		int count = 0;
 		int currentBit = 1;
-		for (int i = 0; i < 15; i++)
+		for (int i = 0; i < 16; i++)	// Only standard flags ( TODO Also array? )
 		{
 			if ( ( modifier & currentBit ) == currentBit )
 				count++;

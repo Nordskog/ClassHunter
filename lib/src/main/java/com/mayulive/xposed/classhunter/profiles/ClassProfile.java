@@ -426,7 +426,7 @@ public class ClassProfile implements Profile<Class>
 				}
 
 				case MODIFIERS:
-					return (mModifiers == -1 ? 1 : Modifiers.getSimilarity( rightClass.getModifiers(), mModifiers ) );
+					return (mModifiers == -1 ? 1 : Modifiers.getSimilarity( mModifiers, rightClass.getModifiers() ) );
 
 				case ENUM_VALUES:
 					return getEnumSimilarity(rightClass);
