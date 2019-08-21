@@ -186,8 +186,16 @@ public class ClassItem implements Profile<Class>
 			float modifierScore = 1f;
 			if ( Modifiers.isThis( mModifiers ) && rightParentClass != null )
 			{
-				// Ignore other flags if this is present
-				modifierScore = right == rightParentClass ? 1f : 0f;
+				if (right.isArray())
+				{
+					// If ret is an array it won't match its parent
+					modifierScore = right.getComponentType() == rightParentClass ? 1f : 0f;
+				}
+				else
+				{
+					// Ignore other flags if this is present
+					modifierScore = right == rightParentClass ? 1f : 0f;
+				}
 			}
 			else
 			{
