@@ -338,11 +338,37 @@ public class ClassProfile implements Profile<Class>
 	public float getSimilarity(Class rightClass, Class rightParentClass, float minSimilarity)
 	{
 		float similarity = 0;					// Total score
-		float remainingWeights = CLASS_DATA.totalWeight;;	// Each type is weighted. Keep track so we can compute partial.
+		//float remainingWeights = CLASS_DATA.totalWeight;	// Each type is weighted. Keep track so we can compute partial.
+		float maxPossibleScore = 0;	//
+		float[] simpleScores = new float[comparisons.length];
 
 		for (int i = 0; i < comparisons.length; i++)
 		{
-			remainingWeights -= comparisons[i].weight;
+			float sim = getSimilaritySingleSimplified(comparisons[i],rightClass);
+			simpleScores[i] = sim * comparisons[i].weight;
+			maxPossibleScore += simpleScores[i];
+			if (ClassHunter.DEBUG_CLASS_SIMILARITY)
+			{
+				Log.i(TAG, "simple Similarity "+ comparisons[i].toString()+": "+sim);
+			}
+		}
+
+		for (int i = 0; i < comparisons.length; i++)
+		{
+			//remainingWeights -= comparisons[i].weight;
+
+			/////////////////////////
+			// Early max score test
+			/////////////////////////
+
+			if ( ( maxPossibleScore / totalWeight ) < minSimilarity )
+			{
+				return mInverted ? 1f : 0f;
+			}
+
+			/////////////////////////
+			// Compute sim
+			/////////////////////////
 
 			float sim = getSimilaritySingle(comparisons[i],rightClass);
 			similarity += sim * comparisons[i].weight;
@@ -351,14 +377,12 @@ public class ClassProfile implements Profile<Class>
 				Log.i(TAG, "Similarity "+ comparisons[i].toString()+": "+sim+", weighted: "+sim * comparisons[i].weight+", cummulative: "+similarity);
 			}
 
-			// Assume 1f for remaining weights, add to running total.
-			float maxPossibleScore = ( remainingWeights + similarity ) / CLASS_DATA.totalWeight;
+			///////////////////////
+			// Late max score test
+			///////////////////////
 
-			if ( maxPossibleScore < minSimilarity )
-			{
-				return mInverted ? 1f : 0f;
-			}
-
+			// Remove simple value, add actual value,
+			maxPossibleScore = ( maxPossibleScore - simpleScores[i] ) + ( sim * comparisons[i].weight );
 		}
 
 		similarity /= totalWeight;
@@ -369,6 +393,96 @@ public class ClassProfile implements Profile<Class>
 			return similarity;
 	}
 
+	/**
+	 * Get the similarity to another class for a single {@link CLASS_DATA} data type
+	 * This is a simplified version that quickly returns a max possible score
+	 * @param dataType		The data type to compare
+	 * @param rightClass	The class to compare to
+	 * @return				The similarity score for the single data type
+	 */
+	public float getSimilaritySingleSimplified(CLASS_DATA dataType, Class rightClass)
+	{
+		try
+		{
+			switch(dataType)
+			{
+				case TYPE_PARAM_COUNT:
+				{
+					if (mTypeParamCount == -1)
+						return 1f;
+					return ProfileHelpers.getCountSimilarity( mTypeParamCount, rightClass.getTypeParameters().length );
+				}
+
+				case INTERFACES:
+				{
+					if ( getInterfaces() == null)
+						return 1f;
+					else
+						return ProfileHelpers.getCountSimilarity( getInterfaces().length, rightClass.getInterfaces().length );
+				}
+
+				case SUPER_CLASS:
+				{
+					return 1f;
+				}
+
+				case NESTED_CLASS:
+				{
+					if ( getNestedClasses() == null)
+						return 1f;
+					else
+						return ProfileHelpers.getCountSimilarity( getNestedClasses().length, rightClass.getDeclaredClasses().length );
+				}
+
+				case MODIFIERS:
+					return (mModifiers == -1 ? 1 : Modifiers.getSimilarity( mModifiers, rightClass.getModifiers() ) );
+
+				case ENUM_VALUES:
+					return getEnumSimilarity(rightClass);
+
+				case DECLARED_CONSTRUCTORS:
+					if ( getDeclaredConstructors() == null)
+						return 1f;
+					else
+						return ProfileHelpers.getCountSimilarity( getDeclaredConstructors().length, rightClass.getDeclaredConstructors().length );
+
+				case DECLARED_FIELDS:
+				{
+					if ( getDeclaredFields() == null)
+						return 1f;
+					else
+						return ProfileHelpers.getCountSimilarity( getDeclaredFields().length, rightClass.getDeclaredFields().length );
+				}
+
+				case DECLARED_METHODS:
+					if ( getDeclaredMethods() == null)
+						return 1f;
+					else
+						return ProfileHelpers.getCountSimilarity( getDeclaredMethods().length, rightClass.getDeclaredMethods().length );
+
+				case PUBLIC_FIELDS:
+					if ( getPublicFields() == null)
+						return 1f;
+					else
+						return ProfileHelpers.getCountSimilarity( getPublicFields().length, rightClass.getFields().length );
+
+				case PUBLIC_METHODS:
+					if ( getPublicMethods() == null)
+						return 1f;
+					else
+						return ProfileHelpers.getCountSimilarity( getPublicMethods().length, rightClass.getMethods().length );
+
+				default:
+					return 1;
+			}
+		}
+		catch (java.lang.NoClassDefFoundError ex)
+		{
+			//Log.i(TAG, "Caught NoClassDefFoundError while comparing class: "+ProfileUtil.getName(rightClass));
+			return handleClassDefNotFoundError(dataType) ? 1 : 0;
+		}
+
+	}
 
 	/**
 	 * Get the similarity to another class for a single {@link CLASS_DATA} data type

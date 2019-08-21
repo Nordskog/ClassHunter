@@ -491,6 +491,30 @@ public class ProfileHelpers
 	}
 
 	/**
+	 * Calculates a score based on the number of patterns and candidates.
+	 * It assumes there are perfect matches for all entries, and only uses count difference to lower score.
+	 * @param targetCount
+	 * @param candidateCount
+	 * @return
+	 */
+	public static float getCountSimilarity( int targetCount, int candidateCount)
+	{
+		if ( targetCount <= 0 && candidateCount <= 0 )
+			return 1f;
+		if (targetCount <= 0 || candidateCount <= 0)
+			return 0f;
+
+		if (targetCount > candidateCount)
+		{
+			return (float) candidateCount / (float) targetCount;
+		}
+		else
+		{
+			return (float) targetCount / (float) candidateCount;
+		}
+	}
+
+	/**
 	 * Compare a list of profiles to a list of candidates, and return the similarity of the two lists.
 	 * @param patternItems The profiles to compare with
 	 * @param candidates	The candidates to compare to
