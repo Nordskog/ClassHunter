@@ -199,7 +199,16 @@ public class ClassItem implements Profile<Class>
 			}
 			else
 			{
-				modifierScore = Modifiers.getSimilarity( mModifiers, right.getModifiers() );
+				if (right.isArray())
+				{
+					// If ret is an array it will have different modifiers than the actual class
+					modifierScore = Modifiers.getSimilarity( mModifiers, right.getComponentType().getModifiers() );
+				}
+				else
+				{
+					modifierScore = Modifiers.getSimilarity( mModifiers, right.getModifiers() );
+				}
+
 			}
 
 			// Only add to class score if modifiers set
