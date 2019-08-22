@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.  
 Dates are in the format dd/mm/yyyy
+## [1.3.0] - 22-09-2019
+### Changed
+- Class profile scores weighted for more accurate results in real-world scenarios
+- Modifiers now compute a proper similarity score instead of relying on a perfect match.
+- Class Profile now uses simplified similarity score to break early ( Performance improved, but overall same because of improved accuracy )
 
 ## [1.2.0] - 20-08-2017
 ### Changed
