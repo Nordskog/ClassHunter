@@ -1,6 +1,6 @@
 package com.mayulive.xposed.classhunter.profiles;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 /**
  * An interface for comparing classes, fields, methods, and constructors.

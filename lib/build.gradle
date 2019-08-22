@@ -2,14 +2,14 @@ apply plugin: 'com.android.library'
 
 android
 {
-    compileSdkVersion 26
+    compileSdkVersion 28
 
     defaultConfig
     {
         minSdkVersion 11
-        targetSdkVersion 26
-        versionCode 3
-        versionName "1.2.0"
+        targetSdkVersion 28
+        versionCode 4
+        versionName "1.3.0"
     }
     buildTypes
     {
@@ -26,7 +26,7 @@ android
 
 dependencies
         {
-            implementation 'com.android.support:support-annotations:27.0.2'
+            implementation 'androidx.annotation:annotation:1.1.0'
         }
 
 //Publish snipet courtesy of Robyer

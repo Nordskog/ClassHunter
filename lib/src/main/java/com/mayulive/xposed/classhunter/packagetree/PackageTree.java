@@ -1,6 +1,6 @@
 package com.mayulive.xposed.classhunter.packagetree;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.Log;
 
 import com.mayulive.xposed.classhunter.ClassHunter;

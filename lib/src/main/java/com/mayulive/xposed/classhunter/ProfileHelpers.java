@@ -1,6 +1,6 @@
 package com.mayulive.xposed.classhunter;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.Log;
 
 import com.mayulive.xposed.classhunter.packagetree.PackageTree;
@@ -19,7 +19,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Helper methods for loading and searching for classes and methods etc
