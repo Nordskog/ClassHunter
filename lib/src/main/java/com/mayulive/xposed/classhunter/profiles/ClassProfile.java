@@ -481,6 +481,12 @@ public class ClassProfile implements Profile<Class>
 			//Log.i(TAG, "Caught NoClassDefFoundError while comparing class: "+ProfileUtil.getName(rightClass));
 			return handleClassDefNotFoundError(dataType) ? 1 : 0;
 		}
+		catch ( Throwable ex)
+		{
+			Log.e(TAG, "Exception caught while comparing class: "+ProfileUtil.getName(rightClass));
+			ex.printStackTrace();
+			return 0;
+		}
 
 	}
 
