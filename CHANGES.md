@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.  
 Dates are in the format dd/mm/yyyy
+
+## [1.3.2] - 18-03-2020
+### Changed
+- Catch any errors ( other than ClassNotFound ) thrown during class comparison, return score of 0 for that component
+
 ## [1.3.0] - 22-09-2019
 ### Changed
 - Class profile scores weighted for more accurate results in real-world scenarios
