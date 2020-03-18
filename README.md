@@ -93,7 +93,14 @@ Max Depth   // The absolute search depth. Must be the same or higher than min de
 
 It is not recommended to manually define a `ClassProfile`. The`ProfileServer` web interface is covered below.
 
-## Loading Classes
+## Searching for profiles
+
+The `ProfileHelpers` class provides a number of helper methods for using profiles to search for classes, fields, methods, and constructors.
+For methods you will generally use `findMostSimilar()` which accepts any profile and an array of candidates to search through.
+
+`ProfileHelpers` also defines a number of other handy methods, such as `findFirstDeclaredFieldWithType()`,  `findAllDeclaredFieldsWithType()`,  `findAllMethodsWithReturnType()` and many more.
+
+## Search for classes
 
 With a `ClassProfile` created, you may search a dex file for matching classes. These are available in `ProfileHelpers`.
 Searching for a class requires that the dex file is loaded into a `PackageTree`, which separates the individual classes into nested packages and classes.
@@ -150,6 +157,13 @@ ProfileCache.loadCache();
 //Store the results.
 ProfileCache.saveCache();
 ```
+
+The cache will also store the values of the static int fields `ClassHunter.HOOK_SIGNATURE` and `ClassHunter.MODULE_SIGNATURE`.
+If either value differs when loading the cache, the cache is discarded. When hooking a new version of an app, the cache should be discarded, so setting this to the CRC32 of the apk is a good approach. This can be obtained via `ClassHunter.getApkCRC32()`.
+
+## Usage examples
+
+The [Exi for Swiftkey Xposed module](https://github.com/Nordskog/SwiftKeyExi) uses this library extensively, and should provide plenty of examples to learn from.
 
 ## License
 
